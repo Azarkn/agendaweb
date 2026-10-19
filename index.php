@@ -27,8 +27,12 @@
     <!-- Contenido Principal -->
     <main class="contenedor">
         
-        <!-- Aviso de éxito (En P4 aparecerá con ?ok=1) -->
-        <div class="alert alert--ok" role="status">✅ Evento guardado correctamente.</div>
+        <!-- Aviso de éxito dinámico cuando se guarda un evento -->
+        <?php if (isset($_GET['ok']) && $_GET['ok'] == '1'): ?>
+            <div class="alert alert--ok" role="status" style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+                ✅ Evento guardado correctamente.
+            </div>
+        <?php endif; ?>
 
         <div class="page__header">
             <div>
