@@ -1,3 +1,29 @@
+:root {
+    --fondo: #F4F7F6;
+    --superficie: #FFFFFF;
+    --texto-principal: #1E293B;
+    --texto-secundario: #64748B;
+    --acento: #0284C7;
+    --acento-hover: #0369A1;
+    --borde: #E2E8F0;
+    --fuente-titulo: 'Poppins', sans-serif;
+    --fuente-cuerpo: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--fondo);
+    color: var(--texto-principal);
+    line-height: 1.6;
+    padding: 20px;
+}
+
 body.layout { 
     display: block; 
     padding: 0; 
