@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "prize_phone_hes";
-$password = "EvUi2yY+Y)X26a45f-";
+$password = "lachilindrina666";
 $database = "prize_phone_hes_agenda_web";
 
 $mysqli = new mysqli($host, $user, $password, $database);
