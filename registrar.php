@@ -1,12 +1,28 @@
 <?php
+require_once 'conexion.php';
+require_once 'funciones.php';
+
+$v = ['titulo' => '', 'fecha' => '', 'hora' => '', 'categoria' => '', 'descripcion' => ''];
+$errores = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo      = trim($_POST['titulo']      ?? '');
-    $fecha       = trim($_POST['fecha']       ?? '');
-    $hora        = trim($_POST['hora']        ?? '');
-    $categoria   = trim($_POST['categoria']   ?? '');
-    $descripcion = trim($_POST['descripcion'] ?? '');
- 
+    $v = leerFormulario();
+    $errores = validarEvento($v);
+
+    if (empty($errores)) {
+        // Los campos opcionales vacíos se guardan como NULL (una hora '' no es una hora válida para MySQL)
+        $hora = $v['hora'] === '' ? null : $v['hora'];
+        $descripcion = $v['descripcion'] === '' ? null : $v['descripcion'];
+
+        $stmt = $mysqli->prepare(
+            'INSERT INTO eventos (titulo, fecha, hora, categoria, descripcion) VALUES (?, ?, ?, ?, ?)'
+        );
+        $stmt->bind_param('sssss', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion);
+        $stmt->execute();
+
+        header('Location: index.php?ok=1', true, 303);   // PRG: Post → Redirect → Get
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -18,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="estilos.css?v=<?= filemtime(__DIR__ . '/estilos.css') ?>">
 </head>
 <body class="layout">
- 
+
     <header class="site-header">
         <div class="contenedor site-header__inner">
             <a href="index.php" class="logo">Agenda<span>Web</span></a>
@@ -31,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </nav>
         </div>
     </header>
- 
+
     <main class="contenedor">
         <div class="page__header">
             <div>
@@ -39,44 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p class="page__subtitle">Completa los datos de tu evento</p>
             </div>
         </div>
- 
-        <form method="post" action="" class="form-card">
- 
-            <div class="campo">
-                <label for="titulo">Título del evento</label>
-                <input type="text" id="titulo" name="titulo" maxlength="120" required>
-            </div>
- 
-            <div class="campo">
-                <label for="fecha">Fecha</label>
-                <input type="date" id="fecha" name="fecha" required>
-            </div>
- 
-            <div class="campo">
-                <label for="hora">Hora (opcional)</label>
-                <input type="time" id="hora" name="hora">
-            </div>
- 
-            <div class="campo">
-                <label for="categoria">Categoría</label>
-                <select id="categoria" name="categoria" required>
-                    <option value="">Selecciona una categoría</option>
-                    <option value="trabajo">💼 Trabajo</option>
-                    <option value="personal">👤 Personal</option>
-                    <option value="estudio">📚 Estudio</option>
-                    <option value="ocio">🎮 Ocio</option>
-                </select>
-            </div>
- 
-            <div class="campo">
-                <label for="descripcion">Descripción (opcional)</label>
-                <textarea id="descripcion" name="descripcion" maxlength="500"></textarea>
-            </div>
- 
-            <button type="submit" class="btn-primary">💾 Guardar</button>
-        </form>
+
+        <?php if (!empty($errores)): ?>
+            <div class="alert alert--error" role="alert">⚠️ Revisa los campos marcados.</div>
+        <?php endif; ?>
+
+        <?php mostrarFormulario($v, $errores, '💾 Guardar'); ?>
     </main>
- 
+
 </body>
 </html>
- 

@@ -231,3 +231,17 @@ main.contenedor {
     background: var(--superficie);
     margin-top: 40px;
 }
+
+/* Mensajes de error (mismos rojos que el botón Borrar) */
+.alert--error {
+    background-color: #FEF3F2;
+    color: #B42318;
+    border: 1px solid #F5C2BC;
+}
+
+.error-text {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #B42318;
+}
