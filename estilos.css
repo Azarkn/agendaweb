@@ -1,3 +1,18 @@
+:root {
+    --fondo: #F4F7F6;            
+    --superficie: #FFFFFF;       
+    --texto-principal: #1E293B;   
+    --texto-secundario: #64748B;  
+    --acento: #0284C7;            
+    --acento-hover: #0369A1;      
+    --borde: #E2E8F0;            
+    
+    /* Tipografías de Google Fonts */
+    --fuente-titulo: 'Poppins', sans-serif;
+    --fuente-cuerpo: 'Inter', sans-serif;
+}
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,9 +20,9 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--fondo);
+    color: var(--texto-principal);
     line-height: 1.6;
     padding: 20px;
 }
@@ -18,7 +33,9 @@ header {
 }
 
 header h1 {
-    color: #2c3e50;
+    font-family: var(--fuente-titulo);
+    color: var(--texto-principal);
+    font-size: 2.2rem;
 }
 
 .contenedor {
@@ -31,16 +48,19 @@ section {
 }
 
 section h2 {
+    font-family: var(--fuente-titulo);
     margin-bottom: 15px;
-    color: #34495e;
-    font-size: 1.5rem;
+    color: var(--texto-principal);
+    font-size: 1.4rem;
 }
 
+
 .tarjeta {
-    background: #ffffff;
+    background: var(--superficie);
     padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid var(--borde);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .grupo-input {
@@ -49,42 +69,49 @@ section h2 {
 
 .grupo-input label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     font-weight: 600;
-    color: #555;
+    color: var(--texto-secundario);
+    font-size: 0.9rem;
 }
 
 .grupo-input input,
 .grupo-input textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+    padding: 12px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    font-family: var(--fuente-cuerpo);
+    font-size: 0.95rem;
+    color: var(--texto-principal);
+    background-color: var(--superficie);
 }
 
 .grupo-input input:focus,
 .grupo-input textarea:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    border-color: var(--acento);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
 }
 
 .btn-principal {
-    background-color: #3498db;
-    color: white;
+    background-color: var(--acento);
+    color: #ffffff;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
+    font-family: var(--fuente-cuerpo);
+    font-weight: 600;
     font-size: 1rem;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
     width: 100%;
 }
 
 .btn-principal:hover {
-    background-color: #2980b9;
+    background-color: var(--acento-hover);
 }
+
 
 .contenedor-tabla {
     overflow-x: auto;
@@ -99,41 +126,46 @@ section h2 {
 #tabla-eventos th,
 #tabla-eventos td {
     padding: 12px 15px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--borde);
 }
 
 #tabla-eventos th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
+    background-color: var(--fondo);
+    color: var(--texto-secundario);
+    font-family: var(--fuente-titulo);
     font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
 }
 
 #tabla-eventos tr:hover {
-    background-color: #f1f1f1;
+    background-color: var(--fondo);
 }
 
 .btn-accion {
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 0.85rem;
     border: none;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
     margin-right: 5px;
+    font-family: var(--fuente-cuerpo);
+    font-weight: 500;
 }
 
 .btn-editar {
-    background-color: #f39c12;
+    background-color: #F59E0B;
     color: white;
 }
 
 .btn-eliminar {
-    background-color: #e74c3c;
+    background-color: #EF4444;
     color: white;
 }
 
 footer {
     text-align: center;
-    color: #7f8c8d;
-    font-size: 0.9rem;
+    color: var(--texto-secundario);
+    font-size: 0.85rem;
     margin-top: 40px;
 }
