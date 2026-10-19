@@ -1,19 +1,36 @@
+<?php
+require_once 'conexion.php';
+ 
+function e($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
+ 
+$resultado = $mysqli->query(
+    "SELECT id, titulo, fecha, hora, categoria, descripcion
+     FROM eventos
+     ORDER BY fecha ASC, hora ASC"
+);
+ 
+$eventos = [];
+if ($resultado) {
+    while ($fila = $resultado->fetch_assoc()) {
+        $eventos[] = $fila;
+    }
+    $resultado->free();
+}
+$total = count($eventos);
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Eventos - AgendaWeb</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <!-- Estilos CSS -->
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body class="layout">
-
-    <!-- Encabezado de la página -->
+ 
     <header class="site-header">
         <div class="contenedor site-header__inner">
             <a href="index.php" class="logo">Agenda<span>Web</span></a>
@@ -23,98 +40,72 @@
             </nav>
         </div>
     </header>
-
-    <!-- Contenido Principal -->
+ 
     <main class="contenedor">
-        
-        <!-- Aviso de éxito dinámico cuando se guarda un evento -->
-        <?php if (isset($_GET['ok']) && $_GET['ok'] == '1'): ?>
-            <div class="alert alert--ok" role="status" style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
-                ✅ Evento guardado correctamente.
-            </div>
+ 
+        <?php if (isset($_GET['ok']) && $_GET['ok'] === '1'): ?>
+            <div class="alert alert--ok" role="status">✅ Evento guardado correctamente.</div>
         <?php endif; ?>
-
+ 
+        <?php if (isset($_GET['editado']) && $_GET['editado'] === '1'): ?>
+            <div class="alert alert--ok" role="status">✅ Evento actualizado correctamente.</div>
+        <?php endif; ?>
+ 
+        <?php if (isset($_GET['borrado']) && $_GET['borrado'] === '1'): ?>
+            <div class="alert alert--ok" role="status">🗑️ Evento eliminado.</div>
+        <?php endif; ?>
+ 
         <div class="page__header">
             <div>
                 <h1 class="page__title">Mis eventos</h1>
-                <p class="page__subtitle">3 eventos registrados</p>
+                <p class="page__subtitle"><?= $total ?> <?= $total === 1 ? 'evento registrado' : 'eventos registrados' ?></p>
             </div>
             <a href="registrar.php" class="btn-primary">+ Nuevo evento</a>
         </div>
-
-        <!-- Rejilla de Tarjetas de Eventos -->
+ 
+        <?php if ($total > 0): ?>
         <section class="card-list">
-
-            <!-- ▼ INICIO de evento 1 (Completo) -->
+            <?php foreach ($eventos as $ev):
+                $dt = new DateTime($ev['fecha']);
+                $fechaTxt = $dt->format('d/m/Y');
+                $tieneHora = !empty($ev['hora']);
+                $horaTxt = $tieneHora ? substr($ev['hora'], 0, 5) : '';
+                $datetime = $ev['fecha'] . ($tieneHora ? 'T' . $horaTxt : '');
+            ?>
             <article class="card">
-                <span class="card__badge">Trabajo</span>
-                <h2 class="card__title">Reunión de academia</h2>
+                <span class="card__badge"><?= e(ucfirst($ev['categoria'])) ?></span>
+                <h2 class="card__title"><?= e($ev['titulo']) ?></h2>
                 <p class="card__meta">
-                    <time datetime="2026-09-25T10:30">25/09/2026 · 10:30</time>
+                    <time datetime="<?= e($datetime) ?>"><?= e($fechaTxt) ?><?= $tieneHora ? ' · ' . e($horaTxt) : '' ?></time>
                 </p>
-                <p class="card__text">Revisar calificaciones del 1er parcial.</p>
-
+                <?php if (!empty($ev['descripcion'])): ?>
+                    <p class="card__text"><?= e($ev['descripcion']) ?></p>
+                <?php endif; ?>
+ 
                 <div class="card__actions">
-                    <a href="editar.php?id=1" class="btn-secondary btn-sm">Editar</a>
-                    <form method="post" action="borrar.php" class="form-inline">
-                        <input type="hidden" name="id" value="1">
+                    <a href="editar.php?id=<?= (int)$ev['id'] ?>" class="btn-secondary btn-sm">Editar</a>
+                    <form method="post" action="borrar.php" class="form-inline" onsubmit="return confirm('¿Seguro que quieres borrar este evento?');">
+                        <input type="hidden" name="id" value="<?= (int)$ev['id'] ?>">
                         <button type="submit" class="btn-danger btn-sm">Borrar</button>
                     </form>
                 </div>
             </article>
-            <!-- ▲ FIN de evento 1 -->
-
-            <!-- ▼ INICIO de evento 2 (Sin descripción) -->
-            <article class="card">
-                <span class="card__badge">Personal</span>
-                <h2 class="card__title">Cita médica con el dentista</h2>
-                <p class="card__meta">
-                    <time datetime="2026-09-27T16:00">27/09/2026 · 16:00</time>
-                </p>
-
-                <div class="card__actions">
-                    <a href="editar.php?id=2" class="btn-secondary btn-sm">Editar</a>
-                    <form method="post" action="borrar.php" class="form-inline">
-                        <input type="hidden" name="id" value="2">
-                        <button type="submit" class="btn-danger btn-sm">Borrar</button>
-                    </form>
-                </div>
-            </article>
-            <!-- ▲ FIN de evento 2 -->
-
-            <!-- ▼ INICIO de evento 3 (Título largo y sin hora específica) -->
-            <article class="card">
-                <span class="card__badge">Recordatorio</span>
-                <h2 class="card__title">Entrega de proyecto final de Desarrollo de Aplicaciones Web</h2>
-                <p class="card__meta">
-                    <time datetime="2026-09-30">30/09/2026</time>
-                </p>
-                <p class="card__text">Subir enlaces a la plataforma escolar.</p>
-
-                <div class="card__actions">
-                    <a href="editar.php?id=3" class="btn-secondary btn-sm">Editar</a>
-                    <form method="post" action="borrar.php" class="form-inline">
-                        <input type="hidden" name="id" value="3">
-                        <button type="submit" class="btn-danger btn-sm">Borrar</button>
-                    </form>
-                </div>
-            </article>
-            <!-- ▲ FIN de evento 3 -->
-
+            <?php endforeach; ?>
         </section>
-
-        <!-- Estado vacío (En P4 aparecerá solo si no hay eventos) -->
-        <div class="empty-state" style="display: none;">
+        <?php else: ?>
+        <div class="empty-state">
             <p>Aún no tienes eventos registrados.</p>
             <a href="registrar.php" class="btn-primary">Registrar el primero</a>
         </div>
-
+        <?php endif; ?>
+ 
     </main>
-
-    <!-- Pie de página -->
+ 
     <footer class="site-footer">
         <div class="contenedor" style="text-align: center;">AgendaWeb · Tu nombre · 2026</div>
     </footer>
-
+ 
 </body>
 </html>
+<?php $mysqli->close(); ?>
+ 

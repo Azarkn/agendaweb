@@ -1,6 +1,6 @@
 <?php
 $host = "localhost";
-$user = "prize_phone_hes";
+$user = "prize-phone-hes";
 $password = "lachilindrina666";
 $database = "prize_phone_hes_agendadb";
 
