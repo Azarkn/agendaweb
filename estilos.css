@@ -232,7 +232,7 @@ main.contenedor {
     margin-top: 40px;
 }
 
-/* Mensajes de error (mismos rojos que el botón Borrar) */
+
 .alert--error {
     background-color: #FEF3F2;
     color: #B42318;

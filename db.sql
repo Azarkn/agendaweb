@@ -1,8 +1,3 @@
--- Tabla de eventos de AgendaWeb.
--- Se ejecuta DENTRO de tu base de datos (no la crea):
---   En tu compu:  mysql -u root -p agenda < db.sql
---   En DomCloud:  la receta lo ejecuta sola
--- Se puede ejecutar varias veces: si la tabla ya existe, no hace nada.
 
 CREATE TABLE IF NOT EXISTS eventos (
   id          INT AUTO_INCREMENT PRIMARY KEY,

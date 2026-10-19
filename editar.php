@@ -2,13 +2,9 @@
 require_once 'conexion.php';
 require_once 'funciones.php';
 
-// De dónde sale el id:
-//   al ABRIR (GET)    → de la URL: editar.php?id=5 (el botón "Editar" de la lista)
-//   al GUARDAR (POST) → del campo oculto <input type="hidden" name="id"> del formulario
 $id = $_SERVER['REQUEST_METHOD'] === 'POST' ? ($_POST['id'] ?? '') : ($_GET['id'] ?? '');
-$id = is_string($id) && ctype_digit($id) ? (int) $id : 0;   // el id solo puede ser un número
+$id = is_string($id) && ctype_digit($id) ? (int) $id : 0;  
 
-// El evento tiene que existir
 $stmt = $mysqli->prepare('SELECT id, titulo, fecha, hora, categoria, descripcion FROM eventos WHERE id = ?');
 $stmt->bind_param('i', $id);
 $stmt->execute();
@@ -28,22 +24,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hora = $v['hora'] === '' ? null : $v['hora'];
         $descripcion = $v['descripcion'] === '' ? null : $v['descripcion'];
 
-        // WHERE id = ?: cambia SOLO este evento
         $stmt = $mysqli->prepare(
             'UPDATE eventos SET titulo = ?, fecha = ?, hora = ?, categoria = ?, descripcion = ? WHERE id = ?'
         );
         $stmt->bind_param('sssssi', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion, $id);
         $stmt->execute();
 
-        header('Location: index.php?editado=1', true, 303);   // PRG
+        header('Location: index.php?editado=1', true, 303);   
         exit;
     }
 } else {
-    // Al abrir, el formulario empieza con los datos guardados
     $v = [
         'titulo'      => $evento['titulo'],
         'fecha'       => $evento['fecha'],
-        'hora'        => $evento['hora'] ? substr($evento['hora'], 0, 5) : '',   // '10:30:00' → '10:30'
+        'hora'        => $evento['hora'] ? substr($evento['hora'], 0, 5) : '',  
         'categoria'   => $evento['categoria'],
         'descripcion' => $evento['descripcion'] ?? '',
     ];

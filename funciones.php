@@ -1,20 +1,16 @@
 <?php
-// funciones.php · lo que comparten registrar.php, editar.php, borrar.php e index.php
 
-// Si una consulta falla, se muestra un mensaje sencillo en lugar de un error de PHP
 set_exception_handler(function (Throwable $e): void {
     error_log('AgendaWeb: ' . $e->getMessage());
     http_response_code(500);
     echo 'Ocurrió un error con la base de datos. Intenta de nuevo.';
 });
 
-// Escapa un texto antes de mostrarlo en el HTML (así nunca se ejecuta como código)
 function e($v): string
 {
     return htmlspecialchars((string) $v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-// Lista blanca: las únicas categorías que se aceptan (valor => texto del menú)
 const CATEGORIAS = [
     'trabajo'  => '💼 Trabajo',
     'personal' => '👤 Personal',
@@ -22,13 +18,11 @@ const CATEGORIAS = [
     'ocio'     => '🎮 Ocio',
 ];
 
-// Cuántas letras tiene un texto (strlen cuenta bytes: "á" valdría 2)
 function largo(string $texto): int
 {
     return preg_match_all('/./us', $texto);
 }
 
-// Lo que llegó del formulario (POST), sin espacios de sobra
 function leerFormulario(): array
 {
     $valores = [];
@@ -39,12 +33,10 @@ function leerFormulario(): array
     return $valores;
 }
 
-// Validación en el servidor. Devuelve campo => mensaje (si está vacío, todo está bien)
 function validarEvento(array $v): array
 {
     $errores = [];
 
-    // Los textos deben llegar en UTF-8 (un navegador siempre los manda así)
     foreach (['titulo', 'descripcion'] as $campo) {
         if (!preg_match('//u', $v[$campo])) {
             $errores[$campo] = 'El texto tiene caracteres no válidos.';
@@ -79,14 +71,12 @@ function validarEvento(array $v): array
     return $errores;
 }
 
-// Mensaje de error debajo de un campo (si lo tiene)
 function mensajeError(array $errores, string $campo): string
 {
     return isset($errores[$campo]) ? '<span class="error-text">' . e($errores[$campo]) . '</span>' : '';
 }
 
-// El formulario de registrar.php y editar.php. Es "pegajoso": si hay errores,
-// vuelve a mostrar lo que la persona escribió. $id solo se pasa al editar.
+
 function mostrarFormulario(array $v, array $errores, string $textoBoton, ?int $id = null): void
 {
     ?>

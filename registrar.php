@@ -10,7 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errores = validarEvento($v);
 
     if (empty($errores)) {
-        // Los campos opcionales vacíos se guardan como NULL (una hora '' no es una hora válida para MySQL)
         $hora = $v['hora'] === '' ? null : $v['hora'];
         $descripcion = $v['descripcion'] === '' ? null : $v['descripcion'];
 
@@ -20,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('sssss', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion);
         $stmt->execute();
 
-        header('Location: index.php?ok=1', true, 303);   // PRG: Post → Redirect → Get
+        header('Location: index.php?ok=1', true, 303);  
         exit;
     }
 }

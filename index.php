@@ -1,6 +1,6 @@
 <?php
 require_once 'conexion.php';
-require_once 'funciones.php';   // e() y la lista de categorías
+require_once 'funciones.php';   
 
 $resultado = $mysqli->query(
     "SELECT id, titulo, fecha, hora, categoria, descripcion
