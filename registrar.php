@@ -1,4 +1,5 @@
 <?php
+require __DIR__ . '/partes/sesion.php';
 require_once 'conexion.php';
 require_once 'funciones.php';
 
@@ -14,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descripcion = $v['descripcion'] === '' ? null : $v['descripcion'];
 
         $stmt = $mysqli->prepare(
-            'INSERT INTO eventos (titulo, fecha, hora, categoria, descripcion) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO eventos (usuario_id, titulo, fecha, hora, categoria, descripcion) VALUES (?, ?, ?, ?, ?, ?)'
         );
-        $stmt->bind_param('sssss', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion);
+        $stmt->bind_param('isssss', $usuarioId, $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion);
         $stmt->execute();
 
-        header('Location: index.php?ok=1', true, 303);  
+        header('Location: index.php?ok=1', true, 303);
         exit;
     }
 }
@@ -43,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <nav class="nav">
                 <a href="index.php" class="nav__link">Mis eventos</a>
                 <a href="registrar.php" class="nav__link is-active">Nuevo evento</a>
+                <span class="nav__link">Hola, <?= e($usuarioNombre) ?></span>
+                <a href="logout.php" class="nav__link">Salir</a>
             </nav>
         </div>
     </header>

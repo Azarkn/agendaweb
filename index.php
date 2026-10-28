@@ -1,20 +1,18 @@
 <?php
+require __DIR__ . '/partes/sesion.php';
 require_once 'conexion.php';
-require_once 'funciones.php';   
+require_once 'funciones.php';
 
-$resultado = $mysqli->query(
-    "SELECT id, titulo, fecha, hora, categoria, descripcion
-     FROM eventos
-     ORDER BY fecha ASC, hora ASC"
+$stmt = $mysqli->prepare(
+    'SELECT id, titulo, fecha, hora, categoria, descripcion
+       FROM eventos
+      WHERE usuario_id = ?
+      ORDER BY fecha ASC, hora ASC'
 );
- 
-$eventos = [];
-if ($resultado) {
-    while ($fila = $resultado->fetch_assoc()) {
-        $eventos[] = $fila;
-    }
-    $resultado->free();
-}
+$stmt->bind_param('i', $usuarioId);
+$stmt->execute();
+$eventos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 $total = count($eventos);
 ?>
 <!DOCTYPE html>
@@ -29,35 +27,37 @@ $total = count($eventos);
     <link rel="stylesheet" href="estilos.css?v=<?= filemtime(__DIR__ . '/estilos.css') ?>">
 </head>
 <body class="layout">
- 
+
     <header class="site-header">
         <div class="contenedor site-header__inner">
             <a href="index.php" class="logo">Agenda<span>Web</span></a>
             <nav class="nav">
                 <a href="index.php" class="nav__link is-active">Mis eventos</a>
                 <a href="registrar.php" class="nav__link">Nuevo evento</a>
+                <span class="nav__link">Hola, <?= e($usuarioNombre) ?></span>
+                <a href="logout.php" class="nav__link">Salir</a>
             </nav>
         </div>
     </header>
- 
+
     <main class="contenedor">
- 
+
         <?php if (isset($_GET['noexiste']) && $_GET['noexiste'] === '1'): ?>
-            <div class="alert alert--error" role="alert">⚠️ Ese evento ya no existe.</div>
+            <div class="alert alert--error" role="alert">⚠️ Ese evento no existe.</div>
         <?php endif; ?>
 
         <?php if (isset($_GET['ok']) && $_GET['ok'] === '1'): ?>
             <div class="alert alert--ok" role="status">✅ Evento guardado correctamente.</div>
         <?php endif; ?>
- 
+
         <?php if (isset($_GET['editado']) && $_GET['editado'] === '1'): ?>
             <div class="alert alert--ok" role="status">✅ Evento actualizado correctamente.</div>
         <?php endif; ?>
- 
+
         <?php if (isset($_GET['borrado']) && $_GET['borrado'] === '1'): ?>
             <div class="alert alert--ok" role="status">🗑️ Evento eliminado.</div>
         <?php endif; ?>
- 
+
         <div class="page__header">
             <div>
                 <h1 class="page__title">Mis eventos</h1>
@@ -65,7 +65,7 @@ $total = count($eventos);
             </div>
             <a href="registrar.php" class="btn-primary">+ Nuevo evento</a>
         </div>
- 
+
         <?php if ($total > 0): ?>
         <section class="card-list">
             <?php foreach ($eventos as $ev):
@@ -84,7 +84,7 @@ $total = count($eventos);
                 <?php if (!empty($ev['descripcion'])): ?>
                     <p class="card__text"><?= e($ev['descripcion']) ?></p>
                 <?php endif; ?>
- 
+
                 <div class="card__actions">
                     <a href="editar.php?id=<?= (int)$ev['id'] ?>" class="btn-secondary btn-sm">Editar</a>
                     <form method="post" action="borrar.php" class="form-inline" onsubmit="return confirm('¿Seguro que quieres borrar este evento?');">
@@ -101,14 +101,13 @@ $total = count($eventos);
             <a href="registrar.php" class="btn-primary">Registrar el primero</a>
         </div>
         <?php endif; ?>
- 
+
     </main>
- 
+
     <footer class="site-footer">
         <div class="contenedor" style="text-align: center;">AgendaWeb · Tu nombre · 2026</div>
     </footer>
- 
+
 </body>
 </html>
 <?php $mysqli->close(); ?>
- 

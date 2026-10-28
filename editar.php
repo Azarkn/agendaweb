@@ -1,12 +1,13 @@
 <?php
+require __DIR__ . '/partes/sesion.php';
 require_once 'conexion.php';
 require_once 'funciones.php';
 
 $id = $_SERVER['REQUEST_METHOD'] === 'POST' ? ($_POST['id'] ?? '') : ($_GET['id'] ?? '');
-$id = is_string($id) && ctype_digit($id) ? (int) $id : 0;  
+$id = is_string($id) && ctype_digit($id) ? (int) $id : 0;
 
-$stmt = $mysqli->prepare('SELECT id, titulo, fecha, hora, categoria, descripcion FROM eventos WHERE id = ?');
-$stmt->bind_param('i', $id);
+$stmt = $mysqli->prepare('SELECT id, titulo, fecha, hora, categoria, descripcion FROM eventos WHERE id = ? AND usuario_id = ?');
+$stmt->bind_param('ii', $id, $usuarioId);
 $stmt->execute();
 $evento = $stmt->get_result()->fetch_assoc();
 if (!$evento) {
@@ -25,19 +26,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descripcion = $v['descripcion'] === '' ? null : $v['descripcion'];
 
         $stmt = $mysqli->prepare(
-            'UPDATE eventos SET titulo = ?, fecha = ?, hora = ?, categoria = ?, descripcion = ? WHERE id = ?'
+            'UPDATE eventos SET titulo = ?, fecha = ?, hora = ?, categoria = ?, descripcion = ? WHERE id = ? AND usuario_id = ?'
         );
-        $stmt->bind_param('sssssi', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion, $id);
+        $stmt->bind_param('sssssii', $v['titulo'], $v['fecha'], $hora, $v['categoria'], $descripcion, $id, $usuarioId);
         $stmt->execute();
 
-        header('Location: index.php?editado=1', true, 303);   
+        header('Location: index.php?editado=1', true, 303);
         exit;
     }
 } else {
     $v = [
         'titulo'      => $evento['titulo'],
         'fecha'       => $evento['fecha'],
-        'hora'        => $evento['hora'] ? substr($evento['hora'], 0, 5) : '',  
+        'hora'        => $evento['hora'] ? substr($evento['hora'], 0, 5) : '',
         'categoria'   => $evento['categoria'],
         'descripcion' => $evento['descripcion'] ?? '',
     ];
@@ -62,6 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <nav class="nav">
                 <a href="index.php" class="nav__link">Mis eventos</a>
                 <a href="registrar.php" class="nav__link">Nuevo evento</a>
+                <span class="nav__link">Hola, <?= e($usuarioNombre) ?></span>
+                <a href="logout.php" class="nav__link">Salir</a>
             </nav>
         </div>
     </header>
