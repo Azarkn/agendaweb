@@ -245,3 +245,28 @@ main.contenedor {
     font-size: 0.85rem;
     color: #B42318;
 }
+
+/* ── Buscador (P9) ── */
+.buscador {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+}
+
+.buscador .form-input,
+.buscador .form-select {
+    padding: 10px 12px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    background: var(--superficie);
+    color: var(--texto-principal);
+    font-family: var(--fuente-cuerpo);
+    font-size: 0.95rem;
+}
+
+.buscador .form-input  { flex: 1 1 220px; width: auto; }
+.buscador .form-select { flex: 0 1 210px; width: auto; }
+
+.buscador .btn-primary { border: none; cursor: pointer; }
+.buscador .btn-secondary { align-self: center; }

@@ -3,13 +3,38 @@ require __DIR__ . '/partes/sesion.php';
 require_once 'conexion.php';
 require_once 'funciones.php';
 
-$stmt = $mysqli->prepare(
-    'SELECT id, titulo, fecha, hora, categoria, descripcion
-       FROM eventos
-      WHERE usuario_id = ?
-      ORDER BY fecha ASC, hora ASC'
-);
-$stmt->bind_param('i', $usuarioId);
+// ── Lo que se busca (GET) ──
+$q = mb_substr(trim($_GET['q'] ?? ''), 0, 60);
+$categoriaSel = $_GET['categoria'] ?? '';
+if (!is_string($categoriaSel) || !array_key_exists($categoriaSel, CATEGORIAS)) {
+    $categoriaSel = '';                       // categoría inventada = todas
+}
+$buscando = ($q !== '' || $categoriaSel !== '');
+
+// ── Consulta armada por piezas ──
+$condiciones = ['usuario_id = ?'];            // SIEMPRE: solo mis eventos
+$tipos       = 'i';
+$valores     = [$usuarioId];
+
+if ($q !== '') {
+    $patron = '%' . addcslashes($q, '%_\\') . '%';
+    $condiciones[] = '(titulo LIKE ? OR descripcion LIKE ?)';
+    $tipos    .= 'ss';
+    $valores[] = $patron;
+    $valores[] = $patron;
+}
+if ($categoriaSel !== '') {
+    $condiciones[] = 'categoria = ?';
+    $tipos    .= 's';
+    $valores[] = $categoriaSel;
+}
+
+$sql = 'SELECT id, titulo, fecha, hora, categoria, descripcion
+          FROM eventos
+         WHERE ' . implode(' AND ', $condiciones) . '
+         ORDER BY fecha ASC, hora ASC';
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param($tipos, ...$valores);
 $stmt->execute();
 $eventos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
@@ -61,12 +86,43 @@ $total = count($eventos);
         <div class="page__header">
             <div>
                 <h1 class="page__title">Mis eventos</h1>
-                <p class="page__subtitle"><?= $total ?> <?= $total === 1 ? 'evento registrado' : 'eventos registrados' ?></p>
+                <p class="page__subtitle">
+                    <?php if ($buscando): ?>
+                        <?= $total ?> resultado<?= $total === 1 ? '' : 's' ?><?= $q !== '' ? ' para «' . e($q) . '»' : '' ?>
+                    <?php else: ?>
+                        <?= $total ?> <?= $total === 1 ? 'evento registrado' : 'eventos registrados' ?>
+                    <?php endif; ?>
+                </p>
             </div>
             <a href="registrar.php" class="btn-primary">+ Nuevo evento</a>
         </div>
 
-        <?php if ($total > 0): ?>
+        <form class="buscador" method="get" action="index.php" role="search">
+            <input class="form-input" type="search" name="q" value="<?= e($q) ?>" maxlength="60"
+                   placeholder="Buscar en título o descripción…" aria-label="Buscar eventos">
+            <select class="form-select" name="categoria" aria-label="Filtrar por categoría">
+                <option value="">Todas las categorías</option>
+                <?php foreach (CATEGORIAS as $valor => $texto): ?>
+                    <option value="<?= e($valor) ?>"<?= $categoriaSel === $valor ? ' selected' : '' ?>><?= e($texto) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" class="btn-primary">Buscar</button>
+            <?php if ($buscando): ?>
+                <a href="index.php" class="btn-secondary btn-sm">Limpiar</a>
+            <?php endif; ?>
+        </form>
+
+        <?php if ($total === 0 && $buscando): ?>
+        <div class="empty-state">
+            <p>Sin resultados para tu búsqueda.</p>
+            <a href="index.php" class="btn-secondary btn-sm">Ver todos mis eventos</a>
+        </div>
+        <?php elseif ($total === 0): ?>
+        <div class="empty-state">
+            <p>Aún no tienes eventos registrados.</p>
+            <a href="registrar.php" class="btn-primary">Registrar el primero</a>
+        </div>
+        <?php else: ?>
         <section class="card-list">
             <?php foreach ($eventos as $ev):
                 $dt = new DateTime($ev['fecha']);
@@ -95,11 +151,6 @@ $total = count($eventos);
             </article>
             <?php endforeach; ?>
         </section>
-        <?php else: ?>
-        <div class="empty-state">
-            <p>Aún no tienes eventos registrados.</p>
-            <a href="registrar.php" class="btn-primary">Registrar el primero</a>
-        </div>
         <?php endif; ?>
 
     </main>
